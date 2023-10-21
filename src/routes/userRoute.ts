@@ -20,7 +20,7 @@ router.post(
 				username: values.username,
 				email: values.email,
 				password: hashedPassword,
-				profile: '',
+
 				ext: values.ext,
 			};
 			const user1 = await User.findOne({ username: values.username });
@@ -40,6 +40,7 @@ router.post(
 						user: newUser.username,
 						message: 'User Created Succesfully',
 						token: generateToken(newUser.username),
+						step: '/dashboard',
 					});
 				})
 				.catch((err) => {
@@ -62,6 +63,7 @@ router.post('/login', async (req: express.Request, res: express.Response) => {
 				user: user1.username,
 				message: 'Logged In Succesfully Boy',
 				token: generateToken(user1.username),
+				step: user1.step,
 			});
 		}
 		return res.status(400).json({ message: 'No user found' });
@@ -70,20 +72,38 @@ router.post('/login', async (req: express.Request, res: express.Response) => {
 		res.status(500).json({ error, message: 'Internal server error' });
 	}
 });
+// ('/api/v1/users/get-userbyusername?search=admin');
+router.get(
+	'/get-userbyusername',
+	async (req: express.Request, res: express.Response) => {
+		const keyword = req.query.search;
+
+		let username = keyword;
+		const user = await User.findOne({ username: username });
+		if (!user) {
+			return res.status(400).json({ message: 'cannot found this username' });
+		}
+		if (user) {
+			res
+				.status(200)
+				.json({ username: username, profile: user.profile, email: user.email });
+		}
+	}
+);
 router.put(
 	'/set-avtar',
 	async (req: express.Request, res: express.Response) => {
 		try {
 			const values = req.body;
 			const user1 = await User.findOne({ username: values.username });
-			if (values.profile === '') {
-				return res
-					.status(400)
-					.json({ message: 'You can select Default Profile Picture' });
-			}
+			// if (values.profile.trim() === null) {
+			// 	return res
+			// 		.status(400)
+			// 		.json({ message: 'You can select Default Profile Picture' });
+			// }
 			console.log('Form avatar', user1);
 			if (user1) {
-				if (user1.profile !== '') {
+				if (user1.profile !== '/favicon.ico') {
 					return res
 						.status(401)
 						.json({ message: 'Already Found avatar for this username!' });
@@ -100,6 +120,7 @@ router.put(
 				);
 				return res.status(200).json({
 					message: 'Avtar Updated Succesfully',
+					step: updateUser2?.step,
 					user: updateUser2?.username,
 				});
 			}

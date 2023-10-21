@@ -3,6 +3,7 @@ import cors from 'cors';
 import evn from 'dotenv';
 import connectDb from './config/Db';
 import userRoute from './routes/userRoute';
+import chatRoute from './routes/chatRoute';
 // import compression from 'compression';
 import bodyParser from 'body-parser';
 evn.config();
@@ -19,6 +20,7 @@ app.get('/test-server', (req: express.Request, res: express.Response) => {
 });
 app.use(userRoute);
 app.use('/api/v1/users', userRoute);
+app.use('/api/v1/chat', chatRoute);
 app.post('/test', (req: express.Request, res: express.Response) => {
 	console.log(req.body);
 	res.status(200).json({ message: 'Success' });
