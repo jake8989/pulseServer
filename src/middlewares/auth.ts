@@ -38,20 +38,18 @@ async function protect(
 		try {
 			token = req.headers.authorization.split(' ')[1];
 			const decode: any = jwt.verify(token, process.env.JWT_SECRET);
-			// const user = await User.findById(decode.user);
+
 			if (!decode) {
-				res.status(401).json({ message: 'Not verified token' });
+				return res.status(401).json({ message: 'Not verified token' });
 			}
+
 			req._id = decode._id;
-			console.log('auth', req._id);
-			next();
+			next(); // Continue to the next middleware or route handler
 		} catch (error) {
-			res.status(401);
-			res.json({ message: 'Error Autherizing' });
+			return res.status(401).json({ message: 'Error Authorizing' });
 		}
 	} else {
-		res.status(401);
-		res.json({ message: 'Error Autherizing' });
+		return res.status(401).json({ message: 'Error Authorizing' });
 	}
 }
 export default protect;
