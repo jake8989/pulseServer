@@ -4,9 +4,15 @@ import { UserType } from '../types';
 import * as bcrypt from 'bcrypt';
 
 import jwt from 'jsonwebtoken';
+import { Types } from 'mongoose';
+// import { parseJsonText } from 'typescript';
+// import protect from '../middlewares/auth';
 
-const app = express();
+// const app = express();
 const router = express.Router();
+// interface RequestWithUser extends express.Request {
+// 	_id: string;
+// }
 router.post(
 	'/register',
 	async (req: express.Request, res: express.Response) => {
@@ -24,7 +30,7 @@ router.post(
 				ext: values.ext,
 			};
 			const user1 = await User.findOne({ username: values.username });
-			console.log(user1);
+			// console.log(user1);
 			if (user1) {
 				return res
 					.status(400)
@@ -35,11 +41,12 @@ router.post(
 			newUser
 				.save()
 				.then(() => {
+					console.log(newUser._id);
 					res.status(200).json({
 						// newUser,
 						user: newUser.username,
 						message: 'User Created Succesfully',
-						token: generateToken(newUser.username),
+						token: generateToken(newUser._id),
 						step: '/dashboard',
 					});
 				})
@@ -57,12 +64,13 @@ router.post('/login', async (req: express.Request, res: express.Response) => {
 	try {
 		const values = req.body;
 		const user1 = await User.findOne({ username: values.username });
-		console.log(user1);
+		// console.log(user1);
 		if (user1 && (await bcrypt.compare(values.password, user1.password))) {
+			console.log(user1._id);
 			return res.status(200).json({
 				user: user1.username,
 				message: 'Logged In Succesfully Boy',
-				token: generateToken(user1.username),
+				token: generateToken(user1._id),
 				step: user1.step,
 			});
 		}
@@ -77,7 +85,6 @@ router.get(
 	'/get-userbyusername',
 	async (req: express.Request, res: express.Response) => {
 		const keyword = req.query.search;
-
 		let username = keyword;
 		const user = await User.findOne({ username: username });
 		if (!user) {
@@ -131,12 +138,12 @@ router.put(
 		}
 	}
 );
-const generateToken = (username: string) => {
+const generateToken = (_id: Types.ObjectId) => {
 	const secretString = process.env.JWT_SECRET;
 	if (!secretString) {
 		return null;
 	}
-	return jwt.sign({ username }, secretString, {
+	return jwt.sign({ _id }, secretString, {
 		expiresIn: '7d',
 	});
 };

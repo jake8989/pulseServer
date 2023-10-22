@@ -5,7 +5,10 @@ import connectDb from './config/Db';
 import userRoute from './routes/userRoute';
 import chatRoute from './routes/chatRoute';
 // import compression from 'compression';
+// import \ from './middlewares/auth';
 import bodyParser from 'body-parser';
+import protect from './middlewares/auth';
+import invitationRoutes from './routes/invitations';
 evn.config();
 const app = express();
 
@@ -19,6 +22,8 @@ app.get('/test-server', (req: express.Request, res: express.Response) => {
 	res.send('Hii from the server');
 });
 app.use(userRoute);
+// app.use(protect);
+app.use('/auth/v1', protect, invitationRoutes);
 app.use('/api/v1/users', userRoute);
 app.use('/api/v1/chat', chatRoute);
 app.post('/test', (req: express.Request, res: express.Response) => {
