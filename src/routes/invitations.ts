@@ -2,7 +2,7 @@ import express from 'express';
 import Chat from '../models/chatModel';
 import { nanoid } from 'nanoid';
 import Inviation, { STATUS } from '../models/invitationModel';
-import { STATES } from 'mongoose';
+// import { Promise, STATES } from 'mongoose';
 import User from '../models/user';
 import Friend from '../models/friendModel';
 const router = express.Router();
@@ -22,29 +22,48 @@ router.post(
 	'/create-invitation',
 	async (req: RequestWithUser, res: express.Response) => {
 		const sender_id = req._id;
-		const reciever_id = req.body.reciever_id;
-		console.log(sender_id, reciever_id);
+		const receiver_id = req.body.receiver_id;
+		console.log(sender_id, receiver_id);
+		if (sender_id === receiver_id) {
+			return res.status(400).json({ message: 'Cannot Perform This Action' });
+		}
+		const existFriends = Friend.findOne({
+			sender_id: sender_id,
+			receiver_id: receiver_id,
+		});
+		// const ef1 = Friend.findOne({
+		// 	sender_id: receiver_id,
+		// 	receiver_id: sender_id,
+		// });
+
 		const existInvitation = await Inviation.findOne({
 			sender: sender_id,
-			reciever: reciever_id,
+			receiver: receiver_id,
 		});
-		if (existInvitation) {
-			return res.status(400).json({ message: 'Invitation Already Exists' });
+		const existInvitation2 = await Inviation.findOne({
+			sender: receiver_id,
+			receiver: sender_id,
+		});
+		if (existInvitation || existInvitation2) {
+			return res.status(400).json({
+				message:
+					'Invitation Already Exists Check Invitations or You are already Friends',
+			});
 		}
 		const invitaion = {
 			_id: uuidv4(),
 			sender: sender_id,
-			reciever: reciever_id,
+			receiver: receiver_id,
 			status: STATUS.PENDING,
 		};
-		const recieverUser = await User.findById(reciever_id);
+		const receiverUser = await User.findById(receiver_id);
 		const newInvitation = new Inviation(invitaion);
 		newInvitation
 			.save()
 			.then(() => {
 				console.log(newInvitation);
 				return res.status(200).json({
-					message: `Invitation Sent to User:  ${recieverUser.username}`,
+					message: `Invitation Sent to User:  ${receiverUser.username}`,
 				});
 			})
 			.catch((err) => {
@@ -64,16 +83,16 @@ router.get(
 		// console.log(pendingInvitations);
 		// return res.json({ pendingInvitations });
 		const promises = pendingInvitations.map(async (invitation) => {
-			const reciever = await User.findById(invitation.reciever);
+			const receiver = await User.findById(invitation.receiver);
 			// return ()
 			return {
 				invitation_id: invitation._id,
 				sender_id: invitation.sender,
 				sender_username: sender.username,
 				sender_profile: sender.profile,
-				reciever_id: invitation.reciever,
-				reciever_username: reciever.username,
-				reciever_profile: reciever.profile,
+				receiver_id: invitation.receiver,
+				receiver_username: receiver.username,
+				receiver_profile: receiver.profile,
 			};
 		});
 		if (!promises) {
@@ -84,12 +103,12 @@ router.get(
 	}
 );
 router.get(
-	'/all-recieved-requests',
+	'/all-received-requests',
 	async (req: RequestWithUser, res: express.Response) => {
-		const reciever_id = req._id;
-		const reciever = await User.findById(reciever_id);
+		const receiver_id = req._id;
+		const receiver = await User.findById(receiver_id);
 		const pendingInvitations = await Inviation.find({
-			reciever: reciever_id,
+			receiver: receiver_id,
 			status: STATUS.PENDING,
 		});
 		// console.log(pendingInvitations);
@@ -102,9 +121,9 @@ router.get(
 				sender_id: invitation.sender,
 				sender_username: sender.username,
 				sender_profile: sender.profile,
-				reciever_id: invitation.reciever,
-				reciever_username: reciever.username,
-				reciever_profile: reciever.profile,
+				receiver_id: invitation.receiver,
+				receiver_username: receiver.username,
+				receiver_profile: receiver.profile,
 			};
 		});
 		if (!promises) {
@@ -117,7 +136,7 @@ router.get(
 router.post(
 	'/accept-invite',
 	async (req: RequestWithUser, res: express.Response) => {
-		const reciever_id = req._id;
+		const receiver_id = req._id;
 		const invitation_id = req.body.invitation_id;
 		const invitaion = await Inviation.findById(invitation_id);
 		if (!invitaion) {
@@ -132,7 +151,7 @@ router.post(
 		//make friends
 		const friend = {
 			_id: invitation_id,
-			user1: invitaion.reciever,
+			user1: invitaion.receiver,
 			user2: invitaion.sender,
 		};
 		const newFriend = new Friend(friend);
@@ -157,7 +176,7 @@ router.post(
 				}
 			})
 			.catch((err) => {
-				res.status(500).json({ message: 'Server Error' });
+				return res.status(500).json({ message: 'Server Error' });
 			});
 	}
 );
@@ -176,8 +195,40 @@ router.post(
 					.json({ message: 'Invitation deleted Successfully' });
 			})
 			.catch(() => {
-				return res.status(200).json({ message: 'Server Error'! });
+				return res.status(500).json({ message: 'Server Error'! });
 			});
+	}
+);
+router.get(
+	'/users-friends',
+	async (req: RequestWithUser, res: express.Response) => {
+		const user_id = req._id;
+		const usid1 = await Friend.find({ user1: user_id });
+		const usid2 = await Friend.find({ user2: user_id });
+		const promise1 = usid1.map(async (usid) => {
+			const user = await User.findById(usid.user2);
+			return {
+				_id: usid._id,
+				friendId: usid._id,
+				friendUsername: user.username,
+				friendEmail: user.email,
+				friendProfile: user.profile,
+			};
+		});
+		const promise2 = usid2.map(async (usid) => {
+			const user = await User.findById(usid.user1);
+			return {
+				_id: usid._id,
+				friendId: user._id,
+				friendUsername: user.username,
+				friendEmail: user.email,
+				friendProfile: user.profile,
+			};
+		});
+		const arr = await Promise.all(promise1);
+		const brr = await Promise.all(promise2);
+		const result = [...arr, ...brr];
+		res.status(200).json({ message: 'List', result });
 	}
 );
 export default router;

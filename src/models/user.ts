@@ -8,6 +8,7 @@ interface userType {
 	step: string;
 	ext: number;
 	isAdmin: boolean;
+	// isAvtarSetted: boolean;
 }
 const userSchema = new Schema(
 	{
@@ -18,6 +19,7 @@ const userSchema = new Schema(
 		step: { type: String, trim: true, default: '/dashboard' },
 		ext: { type: Number, default: 0 },
 		isAdmin: { type: Boolean, required: true, default: false },
+		// isAvtarSetted: { type: Boolean, default: false },
 	},
 	{
 		timestamps: true,

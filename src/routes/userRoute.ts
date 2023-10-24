@@ -88,12 +88,17 @@ router.get(
 		let username = keyword;
 		const user = await User.findOne({ username: username });
 		if (!user) {
-			return res.status(400).json({ message: 'cannot found this username' });
+			return res
+				.status(400)
+				.json({ message: `cannot found this username ${keyword}` });
 		}
 		if (user) {
-			res
-				.status(200)
-				.json({ username: username, profile: user.profile, email: user.email });
+			res.status(200).json({
+				_id: user._id,
+				username: username,
+				profile: user.profile,
+				email: user.email,
+			});
 		}
 	}
 );
@@ -129,6 +134,7 @@ router.put(
 					message: 'Avtar Updated Succesfully',
 					step: updateUser2?.step,
 					user: updateUser2?.username,
+					profile: updateUser2?.profile,
 				});
 			}
 			return res.status(400).json({ message: 'No user found' });

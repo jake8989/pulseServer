@@ -12,7 +12,11 @@ import invitationRoutes from './routes/invitations';
 evn.config();
 const app = express();
 
-app.use(cors());
+app.use(
+	cors({
+		origin: '*',
+	})
+);
 // app.use(compression());
 app.use(express.json());
 app.use(bodyParser.json());
