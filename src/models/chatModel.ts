@@ -1,16 +1,13 @@
 import mongoose, { Schema, Document } from 'mongoose';
-
-import { transpileModule } from 'typescript';
 interface ChatType {
 	chatName: string;
 	isGroupChat: boolean;
 	users: [mongoose.Schema.Types.ObjectId];
 	latestMessage: mongoose.Schema.Types.ObjectId;
-	groupAdmin: mongoose.Schema.Types.ObjectId;
 }
 const chatSchema = new Schema(
 	{
-		chatName: { type: String, trim: true },
+		chatId: { type: String, trim: true },
 		isGroupChat: { type: Boolean, default: false },
 		users: [
 			{
@@ -19,7 +16,6 @@ const chatSchema = new Schema(
 			},
 		],
 		latestMessage: { type: mongoose.Schema.Types.ObjectId, ref: 'Message' },
-		groupAdmin: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 	},
 	{
 		timestamps: true,

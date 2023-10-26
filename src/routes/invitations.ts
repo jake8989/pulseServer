@@ -14,7 +14,7 @@ router.get(
 	'/test-invitation',
 	(req: RequestWithUser, res: express.Response) => {
 		const _id = req._id;
-		console.log(_id);
+		// console.log(_id);
 		res.send('/hii');
 	}
 );
@@ -23,7 +23,7 @@ router.post(
 	async (req: RequestWithUser, res: express.Response) => {
 		const sender_id = req._id;
 		const receiver_id = req.body.receiver_id;
-		console.log(sender_id, receiver_id);
+		// console.log(sender_id, receiver_id);
 		if (sender_id === receiver_id) {
 			return res.status(400).json({ message: 'Cannot Perform This Action' });
 		}
@@ -61,7 +61,7 @@ router.post(
 		newInvitation
 			.save()
 			.then(() => {
-				console.log(newInvitation);
+				// console.log(newInvitation);
 				return res.status(200).json({
 					message: `Invitation Sent to User:  ${receiverUser.username}`,
 				});
@@ -158,7 +158,7 @@ router.post(
 		newFriend
 			.save()
 			.then(async () => {
-				console.log(newFriend);
+				// console.log(newFriend);
 				if (newFriend) {
 					await Inviation.updateOne(
 						{ _id: invitation_id },
@@ -209,7 +209,7 @@ router.get(
 			const user = await User.findById(usid.user2);
 			return {
 				_id: usid._id,
-				friendId: usid._id,
+				friendId: user._id,
 				friendUsername: user.username,
 				friendEmail: user.email,
 				friendProfile: user.profile,
@@ -225,10 +225,14 @@ router.get(
 				friendProfile: user.profile,
 			};
 		});
+
 		const arr = await Promise.all(promise1);
 		const brr = await Promise.all(promise2);
+		// if (arr.length === 0 && brr.length === 0) {
+		// 	return res.status(200).json({ message: 'No friends' });
+		// }
 		const result = [...arr, ...brr];
-		res.status(200).json({ message: 'List', result });
+		return res.status(200).json({ message: 'List', result });
 	}
 );
 export default router;

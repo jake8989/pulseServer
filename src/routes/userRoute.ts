@@ -37,13 +37,14 @@ router.post(
 					.json({ message: 'This username is not available ' });
 			}
 			const newUser = new User(user);
-			console.log(newUser);
+			// console.log(newUser);
 			newUser
 				.save()
 				.then(() => {
 					console.log(newUser._id);
 					res.status(200).json({
 						// newUser,
+						_id: newUser._id,
 						user: newUser.username,
 						message: 'User Created Succesfully',
 						token: generateToken(newUser._id),
@@ -66,8 +67,9 @@ router.post('/login', async (req: express.Request, res: express.Response) => {
 		const user1 = await User.findOne({ username: values.username });
 		// console.log(user1);
 		if (user1 && (await bcrypt.compare(values.password, user1.password))) {
-			console.log(user1._id);
+			// console.log(user1._id);
 			return res.status(200).json({
+				_id: user1._id,
 				user: user1.username,
 				message: 'Logged In Succesfully Boy',
 				token: generateToken(user1._id),
@@ -113,7 +115,7 @@ router.put(
 			// 		.status(400)
 			// 		.json({ message: 'You can select Default Profile Picture' });
 			// }
-			console.log('Form avatar', user1);
+			// console.log('Form avatar', user1);
 			if (user1) {
 				if (user1.profile !== '/favicon.ico') {
 					return res

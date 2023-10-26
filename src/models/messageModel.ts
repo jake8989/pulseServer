@@ -2,15 +2,19 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 import { transpileModule } from 'typescript';
 interface MessageType {
-	sender: mongoose.Schema.Types.ObjectId;
+	chatId: string;
+	sender: string;
+	senderUsername: string;
 	content: string;
-	chat: mongoose.Schema.Types.ObjectId;
+	date: Date;
 }
 const messageSchema = new Schema(
 	{
-		sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+		chatId: { type: String, required: true },
+		sender: { type: String, required: true },
+		senderUsername: { type: String, required: true, default: 'user' },
 		content: { type: String, trim: true },
-		chat: { type: mongoose.Schema.Types.ObjectId, ref: 'Chat' },
+		date: { type: Date, trim: true },
 	},
 
 	{
