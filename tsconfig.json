@@ -1,6 +1,6 @@
 {
 	"compilerOptions": {
-		"allowJs": false,
+		"allowJs": true,
 		"allowSyntheticDefaultImports": true,
 		"allowUmdGlobalAccess": false,
 		"allowUnreachableCode": false,
@@ -10,7 +10,7 @@
 		"declarationMap": true,
 		"esModuleInterop": true,
 		"forceConsistentCasingInFileNames": true,
-		"target": "ES2015",
+		"target": "ES2016",
 		"module": "CommonJS",
 		"noImplicitAny": true,
 		"noImplicitReturns": false,

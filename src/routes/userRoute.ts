@@ -71,7 +71,7 @@ router.post('/login', async (req: express.Request, res: express.Response) => {
 			return res.status(200).json({
 				_id: user1._id,
 				user: user1.username,
-				message: 'Logged In Succesfully Boy',
+				message: 'Logged In Succesfully',
 				token: generateToken(user1._id),
 				step: user1.step,
 			});
