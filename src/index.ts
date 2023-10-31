@@ -21,6 +21,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(userRoute);
 // app.use(protect);
+app.get('/test-server', (req, res) => {
+	res.send('Hii 😎');
+});
 app.use('/auth/v1', protect, invitationRoutes);
 app.use('/api/v1/users', userRoute);
 app.use('/auth/v1/chat', chatRoute);
