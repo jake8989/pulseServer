@@ -21,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(userRoute);
 // app.use(protect);
-app.get('/test-server', (req, res) => {
+app.get('/', (req, res) => {
 	res.send('Hii 😎');
 });
 app.use('/auth/v1', protect, invitationRoutes);
