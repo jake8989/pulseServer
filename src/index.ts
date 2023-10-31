@@ -33,7 +33,7 @@ app.post('/test', (req: express.Request, res: express.Response) => {
 });
 const io = new Server(server, {
 	cors: {
-		origin: 'https://pulse-chat-client.vercel.app',
+		origin: '*',
 	},
 });
 
@@ -74,6 +74,7 @@ io.on('connection', (socket: Socket) => {
 		io.emit('getUsers', users);
 	});
 });
+
 connectDb().then(() => {
 	server.listen(8000, () => {
 		console.log('server is running');
