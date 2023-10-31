@@ -22,7 +22,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(userRoute);
 // app.use(protect);
 app.get('/', (req, res) => {
-	res.send('Hii 😎');
+	res.send('Hii😎');
 });
 app.use('/auth/v1', protect, invitationRoutes);
 app.use('/api/v1/users', userRoute);
@@ -33,7 +33,7 @@ app.post('/test', (req: express.Request, res: express.Response) => {
 });
 const io = new Server(server, {
 	cors: {
-		origin: '*',
+		origin: 'https://pulse-chat-client.vercel.app',
 	},
 });
 
